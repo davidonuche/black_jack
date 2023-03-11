@@ -1,3 +1,5 @@
+import 'package:black_jack/widgets/cards_grid_view.dart';
+import 'package:black_jack/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -13,7 +15,7 @@ class _BlackJackScreenState extends State<BlackJackScreen> {
 
   // Card images
   List<Image> myCards = [];
-  List<Image> dealerCards = [];
+  List<Image> dealersCards = [];
 
   // Cards
   String? dealersFirstCard;
@@ -23,8 +25,8 @@ class _BlackJackScreenState extends State<BlackJackScreen> {
   String? playersSecondCard;
 
   // Scores
-  int? dealerScore = 0;
-  int? playerScore = 0;
+  int? dealersScore = 0;
+  int? playersScore = 0;
 
   // Deck of cards
   final Map<String, int> deckOfCards = {
@@ -91,18 +93,19 @@ class _BlackJackScreenState extends State<BlackJackScreen> {
   }
 
   // Reset the round and reset cards
-  void changeCards() {
+  void startNewRound() {
+    _isGameStarted = true;
     // Start new round with full deckOfCards
     playingCards = {};
     playingCards.addAll(deckOfCards);
     // reset cards images
     myCards = [];
-    dealerCards = [];
+    dealersCards = [];
 
     Random random = Random();
     // Random card one for dealer
-    String cardOneKey =
-        playingCards.keys.elementAt(random.nextInt(playingCards.keys.length));
+    String cardOneKey = playingCards.keys.elementAt(random
+        .nextInt(playingCards.length)); // from 0 to playingCards.keys.length
     // Remove cardOneKey from playingCards
     playingCards.removeWhere((key, value) => key == cardOneKey);
     // Random card two for dealer
@@ -111,17 +114,59 @@ class _BlackJackScreenState extends State<BlackJackScreen> {
     playingCards.removeWhere((key, value) => key == cardTwoKey);
     // Random card three for the player
     String cardThreeKey =
-        playingCards.keys.elementAt(random.nextInt(playingCards.keys.length));
+        playingCards.keys.elementAt(random.nextInt(playingCards.length));
     playingCards.removeWhere((key, value) => key == cardThreeKey);
 
     // Random card four for the player
     String cardFourKey =
-        playingCards.keys.elementAt(random.nextInt(playingCards.keys.length));
+        playingCards.keys.elementAt(random.nextInt(playingCards.length));
     playingCards.removeWhere((key, value) => key == cardFourKey);
+
+    // Assign cards keys to dealerCards
+    dealersFirstCard = cardOneKey;
+    dealersSecondCard = cardTwoKey;
+
+    // Assign cards keys to palyer's cards
+    playersFirstCard = cardThreeKey;
+    playersSecondCard = cardFourKey;
+
+    // Adding dealers cards images to display them in grid view
+    dealersCards.add(Image.asset(dealersFirstCard!));
+    dealersCards.add(Image.asset(dealersSecondCard!));
+
+    // Score for dealer
+    dealersScore =
+        deckOfCards[dealersFirstCard]! + deckOfCards[dealersSecondCard]!;
+
+    // Adding player's cards images to display them in grid view
+    myCards.add(Image.asset(playersFirstCard!));
+    myCards.add(Image.asset(playersSecondCard!));
+
+    // Score for player (my score)
+    playersScore =
+        deckOfCards[playersFirstCard]! + deckOfCards[playersSecondCard]!;
+    if (dealersScore! <= 14) {
+      String thirdDealersCard =
+          playingCards.keys.elementAt(random.nextInt(playingCards.length));
+      dealersCards.add(Image.asset(thirdDealersCard));
+      dealersScore = dealersScore! + deckOfCards[thirdDealersCard]!;
+    }
+
+    setState(() {});
   }
 
   // Add extra card to player
-  void addCard() {}
+  void addCard() {
+    Random random = Random();
+    if (playingCards.length > 0) {
+      String cardKay =
+          playingCards.keys.elementAt(random.nextInt(playingCards.length));
+      playingCards.removeWhere((key, value) => key == cardKay);
+      myCards.add(Image.asset(cardKay));
+      playersScore = playersScore = deckOfCards[cardKay]!;
+      setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,67 +178,68 @@ class _BlackJackScreenState extends State<BlackJackScreen> {
                   children: [
                     Column(
                       children: [
-                        // Todo:- Add score here
-                        Text("Dealer's score"),
+                        Text(
+                          "Dealer's score: $dealersScore",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: dealersScore! <= 21
+                                ? Colors.green[900]
+                                : Colors.red[900],
+                          ),
+                        ),
                         // Dealer's cards
                         Container(
                           height: 200,
                           child: GridView.builder(
                               gridDelegate:
                                   SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2),
+                                      crossAxisCount: 3),
+                              itemCount: dealersCards.length,
                               itemBuilder: (context, index) {
-                                // TODO:- Return dealer's cards here
-                                return Container();
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 13.0),
+                                  child: dealersCards[index],
+                                );
                               }),
                         ),
+                        CardGridView(cards: dealersCards),
                       ],
                     ),
                     Column(
                       children: [
                         // Todo:- Add score here
-                        Text("Player's score"),
-                        Container(
-                          height: 200,
-                          child: GridView.builder(
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2),
-                              // TODO:- Change itemCount to player's cards later
-                              itemCount: 0,
-                              itemBuilder: (context, index) {
-                                // TODO:- Return player's cards here
-                                return Container();
-                              }),
-                        ),
+                        Text("Player\'s score: $playersScore",
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: playersScore! <= 21
+                                    ? Colors.green[900]
+                                    : Colors.red[900])),
+                        CardGridView(cards: myCards),
                       ],
                     ),
-                    Column(
-                      children: [
-                        MaterialButton(
-                          onPressed: () {},
-                          child: Text("Another Card"),
-                          color: Colors.brown[200],
-                        ),
-                        MaterialButton(
-                          onPressed: () {},
-                          child: Text("Next Round"),
-                          color: Colors.brown[200],
-                        ),
-                      ],
+                    IntrinsicWidth(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          CustomButton(onPressed: () {}, label: "Add Card"),
+                          CustomButton(
+                            onPressed: () {
+                              startNewRound();
+                            },
+                            label: "Next Round",
+                          )
+                        ],
+                      ),
                     )
                   ],
                 ),
               )
             : Center(
-                child: MaterialButton(
-                    color: Colors.brown[200],
-                    minWidth: 150,
-                    onPressed: () {
-                      setState(() {
-                        _isGameStarted = true;
-                      });
-                    },
-                    child: Text("Start Game"))));
+                child: CustomButton(
+                    onPressed: () => startNewRound(), label: "Start Game")));
   }
 }
