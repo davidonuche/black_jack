@@ -172,70 +172,72 @@ class _BlackJackScreenState extends State<BlackJackScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _isGameStarted
-          ? SafeArea(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
-                    children: [
-                      Text(
-                        "Dealer's score: $dealersScore",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: dealersScore! <= 21
-                              ? Colors.green[900]
-                              : Colors.red[900],
-                        ),
-                      ),
-                      // Dealer's cards
-                      Container(
-                        height: 130,
-                        child: GridView.builder(
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 3),
-                            itemCount: dealersCards.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 13.0),
-                                child: dealersCards[index],
-                              );
-                            }),
-                      ),
-                      CardGridView(cards: dealersCards),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      // Todo:- Add score here
-                      Text("Player\'s score: $playersScore",
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: playersScore! <= 21
-                                  ? Colors.green[900]
-                                  : Colors.red[900])),
-                      CardGridView(cards: myCards),
-                    ],
-                  ),
-                  IntrinsicWidth(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+          ? SingleChildScrollView(
+              padding: EdgeInsets.all(8.0),
+              child: SafeArea(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
                       children: [
-                        CustomButton(onPressed: () {}, label: "Add Card"),
-                        CustomButton(
-                          onPressed: () {
-                            startNewRound();
-                          },
-                          label: "Next Round",
-                        )
+                        Text(
+                          "Dealer's score: $dealersScore",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: dealersScore! <= 21
+                                ? Colors.green[900]
+                                : Colors.red[900],
+                          ),
+                        ),
+                        // Dealer's cards
+                        Container(
+                          height: 200,
+                          child: GridView.builder(
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3),
+                              itemCount: dealersCards.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 13.0),
+                                  child: dealersCards[index],
+                                );
+                              }),
+                        ),
+                        CardGridView(cards: dealersCards),
                       ],
                     ),
-                  )
-                ],
+                    Column(
+                      children: [
+                        Text("Player\'s score: $playersScore",
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: playersScore! <= 21
+                                    ? Colors.green[900]
+                                    : Colors.red[900])),
+                        CardGridView(cards: myCards),
+                      ],
+                    ),
+                    IntrinsicWidth(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          CustomButton(onPressed: () {}, label: "Add Card"),
+                          CustomButton(
+                            onPressed: () {
+                              startNewRound();
+                            },
+                            label: "Next Round",
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             )
           : Center(
